@@ -1,0 +1,30 @@
+version: "3"
+services:
+  db:
+    image: postgres:14.7
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    
+    ports:
+      - "5432:5432"
+
+    volumes:
+        - postgres-data:/var/database/PostgresTotem
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "10481:10481"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+
+volumes:
+  postgres-data:
+
+    
