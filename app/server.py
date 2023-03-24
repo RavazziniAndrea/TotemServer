@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
 import shutil
 import uvicorn
+import datetime 
 
 app = FastAPI()
 
@@ -37,6 +38,11 @@ async def root():
     return FileResponse(path="./gatto.jpeg",filename="./gatto.jpeg",media_type='image/jpeg')
 
 
+def get_photo_name():
+    curr = datetime.datetime.now()
+    return (str(curr.year)+str(curr.month)+str(curr.day)+"_"+str(curr.hour)+'-'+str(curr.minute)+'-'+str(curr.second))
+
 if __name__ == "__main__":
     print("-- Avvio server --")
-    uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
+    print("Data: "+get_photo_name())
+    #uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
