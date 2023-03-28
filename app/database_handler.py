@@ -4,7 +4,7 @@ from read_config import ReadConfig
 
 
 def get_conf():
-    config = ReadConfig("db_config.json")
+    config = ReadConfig("app/db_config.json")
     print(config)
     print("Done")
 
