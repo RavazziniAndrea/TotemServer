@@ -1,2 +1,3 @@
 app/db_config.properties
 app/db_config.json
+app/__pycache__/
