@@ -1,5 +1,16 @@
 import psycopg2
+import read_config
 
 
-#TODO cannot commit personal info
-connection = psycopg2.connect()
+
+def get_conf():
+    config = read_config("db_config.json")
+    print(config)
+    print("Done")
+
+
+# connection = psycopg2.connect(database=config.get,
+#                               host="",
+#                               user="",
+#                               password="",
+#                               port="")

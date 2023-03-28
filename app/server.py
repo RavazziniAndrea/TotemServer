@@ -3,6 +3,8 @@ from fastapi.responses import FileResponse
 import shutil
 import uvicorn
 import datetime 
+import database_handler
+
 
 app = FastAPI()
 
@@ -51,4 +53,5 @@ def get_now():
 if __name__ == "__main__":
     print("-- Start server --")
     print("Data: "+get_photo_name())
+    database_handler.get_conf()
     #uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)

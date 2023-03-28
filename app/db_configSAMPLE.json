@@ -1,0 +1,10 @@
+{
+    "database":{
+        "usage":"REMOVE 'SAMPLE' FROM THE FILENAME",
+        "name":"NAME",
+        "host":"IP_ADDRESS",
+        "user":"DB_USER",
+        "password":"DB_PASSWD",
+        "port":"PORT"
+    }
+}
