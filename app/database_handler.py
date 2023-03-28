@@ -1,5 +1,5 @@
 import psycopg2
-from . import read_config
+import read_config
 
 
 
