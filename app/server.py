@@ -16,7 +16,7 @@ def salva_filesystem(img):
         with open("files/"+get_photo_name()+".jpg","wb") as buffer:
             shutil.copyfileobj(img.file, buffer)
         print("File written: "+img.name)
-        return true
+        return True
     except:
         print("Error writing file!!")
         return False
