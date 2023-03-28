@@ -8,7 +8,7 @@ class ReadConfig():
         self.__file_config.close()
     
     def get_db_name(self):
-        return self.data["database"]["name"]
+        return str(self.data["database"]["name"])
     def get_db_host(self):
         return self.data["database"]["host"]
     def get_db_user(self):
