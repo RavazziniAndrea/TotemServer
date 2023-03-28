@@ -1,10 +1,10 @@
 import psycopg2
-import read_config
+from read_config import ReadConfig
 
 
 
 def get_conf():
-    config = read_config("db_config.json")
+    config = ReadConfig("db_config.json")
     print(config)
     print("Done")
 

@@ -1,6 +1,6 @@
 import json
 
-class read_config():
+class ReadConfig():
     
     def __init__(self, filename):
         self.__file_config = open(filename, "r")
