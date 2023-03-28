@@ -3,8 +3,9 @@ import json
 class ReadConfig():
     
     def __init__(self, filename):
-        self.__file_config = open(filename, "r")
-        self.data=json.loads(self.__file_config)
+        self.__file_config = open(filename)
+        self.data=json.load(self.__file_config)
+        self.__file_config.close()
     
     def get_db_name(self):
         return self.data["database"]["name"]
