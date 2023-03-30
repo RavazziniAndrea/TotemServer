@@ -3,7 +3,8 @@ from fastapi.responses import FileResponse
 import shutil
 import uvicorn
 import datetime 
-import database_handler
+from database_handler import DatabaseHandler
+from read_config import ReadConfig
 
 
 app = FastAPI()
@@ -38,7 +39,7 @@ def salva_db(path):
 @app.get("/")
 async def root():
     #TODO
-    #add_get_db(get_now())
+    db_handler.file_get_add_entry(datetime.datetime.now())
     return FileResponse(path="./gatto.jpeg",filename="./gatto.jpeg",media_type='image/jpeg')
 
 
@@ -51,5 +52,6 @@ def get_photo_name():
 if __name__ == "__main__":
     print("-- Start server --")
     print(f"Data: {get_photo_name()}")
-    database_handler.get_conf()
+    config = ReadConfig("db_config.json")
+    db_handler = DatabaseHandler()
     #uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
