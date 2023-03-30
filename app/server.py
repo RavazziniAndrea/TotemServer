@@ -15,9 +15,9 @@ async def salva_file(img: UploadFile = File(...)):
 
 def salva_filesystem(img):
     try:
-        with open("files/"+get_photo_name()+".jpg","wb") as buffer:
+        with open(f"files/{get_photo_name()}.jpg","wb") as buffer:
             shutil.copyfileobj(img.file, buffer)
-        print("File written: "+img.name)
+        print(f"File written: {img.name}")
         return True
     except:
         print("Error writing file!!")
@@ -43,15 +43,13 @@ async def root():
 
 
 def get_photo_name():
-    curr = get_now() 
+    curr = datetime.datetime.now()
     #Impossible name duplication(?)
-    return (str(curr.year)+str(curr.month)+str(curr.day)+"_"+str(curr.hour)+'-'+str(curr.minute)+'-'+str(curr.second))
+    return curr.strftime("%Y%m%d_%H-%M-%S")
 
-def get_now():
-    return datetime.datetime.now()
 
 if __name__ == "__main__":
     print("-- Start server --")
-    print("Data: "+get_photo_name())
+    print(f"Data: {get_photo_name()}")
     database_handler.get_conf()
     #uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
