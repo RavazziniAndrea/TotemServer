@@ -17,12 +17,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    working_dir: /app
     ports:
       - "10481:10481"
     volumes:
       - .:/app
     depends_on:
       - db
+    
 
 volumes:
   postgres-data:
