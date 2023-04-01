@@ -5,6 +5,7 @@ import uvicorn
 import datetime 
 import pathlib
 import os
+import traceback
 from database_handler import DatabaseHandler
 from read_config import ReadConfig
 from string_converter import StringConverter
@@ -12,7 +13,7 @@ from string_converter import StringConverter
 
 app = FastAPI()
 db_handler = None
-CONFIG_PATH = "/app/config"
+CONFIG_PATH = "app/config"
 
 # ----------------------------------------------------------
 # FASTAPI
@@ -68,13 +69,9 @@ if __name__ == "__main__":
         config = ReadConfig(f"{CONFIG_PATH}/db_config.json")
         db_handler = DatabaseHandler(config)
 
-        s=StringConverter.encrypt("ciaoneeee")
-        print(s)
-        print(StringConverter.decrypt(s))
-
     except Exception as e:
         print("[ABORT] Cannot run server...")
-        print(e)
+        print(traceback.print_exc())
         quit()
 
     #uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
