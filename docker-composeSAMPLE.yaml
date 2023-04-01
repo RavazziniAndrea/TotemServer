@@ -11,6 +11,7 @@ services:
       - "5432:5432"
 
     volumes:
+        - ./database_creation.sql:/docker-entrypoint-initdb.d/database_creation.sql
         - postgres-data:/var/database/PostgresTotem
 
   server:
@@ -22,6 +23,7 @@ services:
       - "10481:10481"
     volumes:
       - .:/app
+      - ../photos:/app/photos #'../photos' is a folder on the host
     depends_on:
       - db
     

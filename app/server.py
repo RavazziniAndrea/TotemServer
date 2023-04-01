@@ -13,25 +13,31 @@ from string_converter import StringConverter
 
 app = FastAPI()
 db_handler = None
-CONFIG_PATH = "app/config"
+CONFIG_PATH = "./app/config"
+PHOTO_FOLDER = "./photos"
 
 # ----------------------------------------------------------
 # FASTAPI
 # ----------------------------------------------------------
-@app.post("/files/")
+@app.post("/photo/")
 async def salva_file(img: UploadFile = File(...)):
     salvataggio = salva_filesystem(img)
     scrittura_db = salva_db(img.name)
 
-@app.get("/photo/{photo_id}")
-async def get_photo(photo_id):
+
+
+@app.get("/get/{photo_name}")
+async def get_photo(photo_name):
+
+    name = converter.decrypt(photo_name)
+
     #TODO sarebbe bello usare dei threads per le scritture a db così non rallentano il ritorno del file
     global db_handler
     db_handler.file_get_add_entry(datetime.datetime.now())
 
-    #TODO decrypt photo_id
-    id = ""
-    db_handler.get_photo_path(id)
+    db_handler.get_photo_from_name(name)
+
+    #TODO inviare risposta al client ti togliere il QR dallo schermo (?)
 
     return FileResponse(path="./gatto.jpeg",filename="./gatto.jpeg",media_type='image/jpeg')
 
@@ -46,8 +52,9 @@ def salva_filesystem(img):
             shutil.copyfileobj(img.file, buffer)
         print(f"File written: {img.name}")
         return True
-    except:
+    except Exception as e:
         print("Error writing file!!")
+        print(traceback.print_exc())
         return False
 
 def salva_db(path):
