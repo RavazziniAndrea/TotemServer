@@ -4,7 +4,7 @@ CREATE TABLE Photo(
 	localPath VARCHAR(255),
 	downloaded BOOLEAN DEFAULT FALSE,
 	digested VARCHAR(255) NOT NULL,
-	sentTime TIMESTAMP,
+	recivedTime TIMESTAMP,
 	PRIMARY KEY (photoName)
 );
 
