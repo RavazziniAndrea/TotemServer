@@ -21,7 +21,7 @@ PHOTO_FOLDER = "./photos"
 # ----------------------------------------------------------
 @app.post("/photo/")
 async def salva_file(img: UploadFile = File(...)):
-    salvataggio = salva_filesystem(img)
+    salvataggio = salva_filesystem(img) #TODO se ritorna False, fai qualcosa, non andare avanti tipo...
     scrittura_db = salva_db(img.name)
 
 
@@ -48,17 +48,17 @@ async def get_photo(photo_name):
 
 def salva_filesystem(img):
     try:
-        with open(f"files/{get_photo_name()}.jpg","wb") as buffer:
+        with open(f"{PHOTO_FOLDER}/{get_photo_name()}.jpg","wb") as buffer:
             shutil.copyfileobj(img.file, buffer)
         print(f"File written: {img.name}")
         return True
     except Exception as e:
-        print("Error writing file!!")
+        print("Error writing file!!") #TODO cestisci meglio questa eccezione! (magari tornando qualcosa al client)
         print(traceback.print_exc())
         return False
 
-def salva_db(path):
-    #TODO 
+def salva_db(name):
+    db_handler.add_new_photo(name, PHOTO_FOLDER+name, converter.encrypt(name), time)
     return True
 
 def get_photo_name():

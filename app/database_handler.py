@@ -10,6 +10,19 @@ class DatabaseHandler():
         self.password   = config.get_db_passwd()
         self.port       = config.get_db_port()
 
+    def add_new_photo(self, name, path, digest):
+        connection = self.__get_connection()
+        cursor = connection.cursor()
+        try:
+            insert_statement = """INSERT INTO Photo (photoName,localPath,digested,recivedTime) 
+                                    VALUES (%s,%s,%s)"""
+            cursor.execute(insert_statement, (name, path, digest)) #TODO sarà da testare e far funzionare
+        except:
+            #TODO
+            print("ERRORRE Insert")
+            
+        connection.close()
+
 
     def file_get_add_entry(self, now):
         connection = self.__get_connection()
@@ -20,6 +33,8 @@ class DatabaseHandler():
         except:
             #TODO
             print("ERRORRE Insert")
+
+        connection.close()
 
 
     def __get_connection(self):
