@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # RUN pip install fastapi; pip install uvicorn
-RUN pip install -r requirements.txt
+RUN pip install -r config/requirements.txt
 RUN apt update && apt -y install libpq-dev gcc && pip install psycopg2
 
 #CMD [ "uvicorn", "app.main:app", "--reload", "--host", "0.0.0.0" ]
