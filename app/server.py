@@ -61,8 +61,8 @@ def get_photo_name():
 
 
 if __name__ == "__main__":
-    print("-- Start server --")
-    print(f"Data: {get_photo_name()}")
+    print(" -- Start server --")
+    print(f" -- {datetime.datetime.now()} --")
 
     try:
         converter = StringConverter(f"{CONFIG_PATH}/key")
