@@ -2,3 +2,4 @@ app/config/db_config.properties
 app/config/db_config.json
 app/__pycache__/
 app/config/key
+docker-compose.yaml
