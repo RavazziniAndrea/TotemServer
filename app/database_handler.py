@@ -24,16 +24,32 @@ class DatabaseHandler():
         connection.close()
 
 
-    def file_get_add_entry(self, name):
+    def file_add_get_photo(self, name):
         connection = self.__get_connection()
         cursor = connection.cursor()
         try:
             insert_statement = "INSERT INTO DownloadTime (photoName) VALUES (%s)"
             cursor.execute(insert_statement, (name)) #TODO sarà da testare e far funzionare
+            update_statement = "UPDATE Photo SET downloaded = true WHERE photoName = %s"
+            cursor.execute(update_statement, (name)) #TODO sarà da testare e far funzionare
+        except:
+            #TODO
+            print("ERRORRE Update")
+
+        connection.close()
+
+
+    #Unused...
+    def __database_operation(self, statements, values):
+        connection = self.__get_connection()
+        cursor = connection.cursor()
+        try:
+            for statement in statements:
+                cursor.execute(statement, values) #TODO sarà da testare e far funzionare
         except:
             #TODO
             print("ERRORRE Insert")
-
+            
         connection.close()
 
 

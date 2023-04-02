@@ -1,18 +1,16 @@
 from cryptography.fernet import Fernet
-
+from server import KEY_PATH
 
 class StringConverter():
 
-    def __init__(self, key_path):
-        try:
-            print(key_path)
-            self.key = open(key_path,"r").readline()
-            if self.key == None or self.key == "":
-                raise Exception
-        except Exception as e:
-            raise Exception(e)
+    try:
+        key = open(KEY_PATH,"r").readline()
+        if key == None or key == "":
+            raise Exception
+    except Exception as e:
+        raise Exception(e)
 
-        self.fernet = Fernet(self.key)
+    fernet = Fernet(key)
 
 
     def encrypt(self, to_encrypt):

@@ -12,35 +12,41 @@ from read_config import ReadConfig
 from string_converter import StringConverter
 
 
-app = FastAPI()
-db_handler = None
-CONFIG_PATH = "./app/config"
+CONFIG_PATH  = "./app/config"
+KEY_PATH     = f"{CONFIG_PATH}/key"
 PHOTO_FOLDER = "./photos"
+MEDIA_TYPE   = "image/jpeg"
+EXTENSION    = ".jpg"
+
 
 # ----------------------------------------------------------
 # FASTAPI
 # ----------------------------------------------------------
 
+app = FastAPI()
+
 @app.post("/photo/")
 async def salva_file(img: UploadFile = File(...)):
-    salvataggio = salva_filesystem(img) #TODO se ritorna False, fai qualcosa, non andare avanti tipo...
-    scrittura_db = salva_db(img.name)
+    try:
+        salva_filesystem(img) #TODO se exception, fai qualcosa, non andare avanti tipo...
+        salva_db(img.name)
+    except Exception as e:
+        #TODO tornare qualcosa al client
+        print(traceback.print_exc)
 
 
 @app.get("/get/{photo_name}")
 async def get_photo(photo_name):
-
-    name = converter.decrypt(photo_name)
+    global converter
+    global db_handler
+    name = StringConverter.decrypt(photo_name)
 
     #TODO bisogna testarlo :)
-    # global db_handler
-    # db_handler.file_get_add_entry(name)
-    thread = Thread(target=db_handler.file_get_add_entry, args=name)
-    thread.start()
-
+    thread_add_get_photo = Thread(target=db_handler.file_add_get_photo, args=name)
+    thread_add_get_photo.start()
     #TODO inviare risposta al client ti togliere il QR dallo schermo (?)
 
-    return FileResponse(path=f"{PHOTO_FOLDER}/{name}",filename=f"{PHOTO_FOLDER}/{name}",media_type='image/jpeg')
+    return FileResponse(path=f"{PHOTO_FOLDER}/{name}",filename=f"{PHOTO_FOLDER}/{name}",media_type=MEDIA_TYPE)
 
 # ----------------------------------------------------------
 # END - FASTAPI
@@ -49,19 +55,19 @@ async def get_photo(photo_name):
 
 def salva_filesystem(img):
     try:
-        with open(f"{PHOTO_FOLDER}/{get_photo_name()}.jpg","wb") as buffer:
+        with open(f"{PHOTO_FOLDER}/{get_photo_name()}{EXTENSION}","wb") as buffer:
             shutil.copyfileobj(img.file, buffer)
         print(f"File written: {img.name}")
-        return True
     except Exception as e:
         print("Error writing file!!") #TODO gestisci meglio questa eccezione! (magari tornando qualcosa al client)
         print(traceback.print_exc())
-        return False
+        raise Exception("Not written in filesystem")
 
 
 def salva_db(name):
-    db_handler.add_new_photo(name, PHOTO_FOLDER+name, converter.encrypt(name))
-    return True
+    global converter
+    global db_handler
+    db_handler.add_new_photo(name, PHOTO_FOLDER+name, StringConverter.encrypt(name))
 
 
 def get_photo_name():
@@ -74,6 +80,8 @@ if __name__ == "__main__":
     print(" -- Start server --")
     print(f" -- {datetime.datetime.now()} --")
 
+    global converter
+    global db_handler
     try:
         converter = StringConverter(f"{CONFIG_PATH}/key")
         config = ReadConfig(f"{CONFIG_PATH}/db_config.json")
@@ -84,4 +92,4 @@ if __name__ == "__main__":
         print(traceback.print_exc())
         quit()
 
-    #uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
+    uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
