@@ -1,4 +1,5 @@
 import psycopg2
+import traceback
 
 
 class DatabaseHandler():
@@ -17,25 +18,31 @@ class DatabaseHandler():
         try:
             insert_statement = """INSERT INTO Photo (photoName,localPath,digested) VALUES (%s,%s,%s)"""
             cursor.execute(insert_statement, (name, path, digest)) #TODO sarà da testare e far funzionare
+            connection.commit()
         except:
             #TODO
             print("ERRORRE Insert")
-            
+            connection.rollback()
+        cursor.close()    
         connection.close()
 
 
     def file_add_get_photo(self, name):
         connection = self.__get_connection()
         cursor = connection.cursor()
+        #FIXME non funziona la scrittura su db :(
         try:
             insert_statement = "INSERT INTO DownloadTime (photoName) VALUES (%s)"
-            cursor.execute(insert_statement, (name)) #TODO sarà da testare e far funzionare
+            cursor.execute(insert_statement, (name,)) #TODO sarà da testare e far funzionare
+            connection.commit()
             update_statement = "UPDATE Photo SET downloaded = true WHERE photoName = %s"
-            cursor.execute(update_statement, (name)) #TODO sarà da testare e far funzionare
+            cursor.execute(update_statement, (name,)) #TODO sarà da testare e far funzionare
+            connection.commit()
         except:
             #TODO
-            print("ERRORRE Update")
-
+            print("ERRORRE database")
+            connection.rollback()
+        cursor.close()
         connection.close()
 
 

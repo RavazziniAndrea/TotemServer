@@ -9,7 +9,7 @@ import traceback
 from threading import Thread
 from database_handler import DatabaseHandler
 from read_config import ReadConfig
-from string_converter import StringConverter
+# from string_converter import StringConverter
 
 
 CONFIG_PATH  = "./app/config"
@@ -17,6 +17,16 @@ KEY_PATH     = f"{CONFIG_PATH}/key"
 PHOTO_FOLDER = "./photos"
 MEDIA_TYPE   = "image/jpeg"
 EXTENSION    = ".jpg"
+
+try:
+    # converter = StringConverter(f"{CONFIG_PATH}/key")
+    config = ReadConfig(f"{CONFIG_PATH}/db_config.json")
+    db_handler = DatabaseHandler(config)
+
+except Exception as e:
+    print("[ABORT] Cannot run server...")
+    print(traceback.print_exc())
+    quit()
 
 
 # ----------------------------------------------------------
@@ -37,16 +47,19 @@ async def salva_file(img: UploadFile = File(...)):
 
 @app.get("/get/{photo_name}")
 async def get_photo(photo_name):
-    global converter
-    global db_handler
-    name = StringConverter.decrypt(photo_name)
+    name = photo_name
 
-    #TODO bisogna testarlo :)
-    thread_add_get_photo = Thread(target=db_handler.file_add_get_photo, args=name)
-    thread_add_get_photo.start()
+    global db_handler
+    db_handler.file_add_get_photo(name)
+    # thread_add_get_photo = Thread(target=db_handler.file_add_get_photo, args=name)
+    # thread_add_get_photo.start()
     #TODO inviare risposta al client ti togliere il QR dallo schermo (?)
 
-    return FileResponse(path=f"{PHOTO_FOLDER}/{name}",filename=f"{PHOTO_FOLDER}/{name}",media_type=MEDIA_TYPE)
+    #FIXME gestire errore File non trovato
+    print("[DEBUG]")
+    print(os.getcwd())
+    print(os.listdir("photos"))
+    return FileResponse(path=f"{PHOTO_FOLDER}/{name}{EXTENSION}",filename=f"{PHOTO_FOLDER}/{name}{EXTENSION}",media_type=MEDIA_TYPE)
 
 # ----------------------------------------------------------
 # END - FASTAPI
@@ -65,9 +78,9 @@ def salva_filesystem(img):
 
 
 def salva_db(name):
-    global converter
-    global db_handler
-    db_handler.add_new_photo(name, PHOTO_FOLDER+name, StringConverter.encrypt(name))
+    # global db_handler
+    # db_handler.add_new_photo(name, PHOTO_FOLDER+name, StringConverter.encrypt(name))
+    db_handler.add_new_photo(name, PHOTO_FOLDER+name, name)
 
 
 def get_photo_name():
@@ -80,16 +93,8 @@ if __name__ == "__main__":
     print(" -- Start server --")
     print(f" -- {datetime.datetime.now()} --")
 
-    global converter
-    global db_handler
-    try:
-        converter = StringConverter(f"{CONFIG_PATH}/key")
-        config = ReadConfig(f"{CONFIG_PATH}/db_config.json")
-        db_handler = DatabaseHandler(config)
+    # global converter
+    # global db_handler
 
-    except Exception as e:
-        print("[ABORT] Cannot run server...")
-        print(traceback.print_exc())
-        quit()
 
     uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
