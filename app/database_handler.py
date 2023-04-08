@@ -31,16 +31,31 @@ class DatabaseHandler():
         connection = self.__get_connection()
         cursor = connection.cursor()
         #FIXME non funziona la scrittura su db :(
+        #adesso non si collega proprio, sarà un problema di network?
         try:
-            insert_statement = "INSERT INTO DownloadTime (photoName) VALUES (%s)"
+            cursor.execute("""SELECT count(*) FROM information_schema.tables """)
+            for table in cursor.fetchall():
+                print(table)    
+
+            insert_statement = """SELECT * FROM totem.downloadtime"""
+            cursor.execute(insert_statement)
+            for val in cursor.fetchall():
+                print(val) 
+
+            print("Inizio insert")
+            insert_statement = """INSERT INTO totem.downloadtime (photoName) VALUES (%s)"""
             cursor.execute(insert_statement, (name,)) #TODO sarà da testare e far funzionare
             connection.commit()
-            update_statement = "UPDATE Photo SET downloaded = true WHERE photoName = %s"
+            print("Fine insert")
+            print("Inizio Update")
+            update_statement = "UPDATE totem.photo SET downloaded = true WHERE photoName = %s"
             cursor.execute(update_statement, (name,)) #TODO sarà da testare e far funzionare
             connection.commit()
-        except:
+            print("Fine Update")
+        except Exception as e:
             #TODO
             print("ERRORRE database")
+            print(e)
             connection.rollback()
         cursor.close()
         connection.close()

@@ -1,5 +1,7 @@
 
-CREATE TABLE Photo(
+CREATE SCHEMA IF NOT EXISTS totem;
+
+CREATE TABLE totem.photo(
 	photoName VARCHAR(255),
 	localPath VARCHAR(255),
 	downloaded BOOLEAN DEFAULT FALSE,
@@ -8,11 +10,11 @@ CREATE TABLE Photo(
 	PRIMARY KEY (photoName)
 );
 
-CREATE TABLE DownloadTime(
+CREATE TABLE totem.downloadtime(
 	id SERIAL NOT NULL,
 	photoName VARCHAR(255),
 	downloadTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT fk_photo
 		FOREIGN KEY(photoName) 
-			REFERENCES Photo(photoName)
+			REFERENCES totem.photo(photoName)
 );
