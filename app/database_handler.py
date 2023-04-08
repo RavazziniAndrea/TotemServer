@@ -23,42 +23,53 @@ class DatabaseHandler():
             #TODO
             print("ERRORRE Insert")
             connection.rollback()
-        cursor.close()    
-        connection.close()
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
 
 
     def file_add_get_photo(self, name):
         connection = self.__get_connection()
         cursor = connection.cursor()
-        #FIXME non funziona la scrittura su db :(
-        #adesso non si collega proprio, sarà un problema di network?
         try:
-            cursor.execute("""SELECT count(*) FROM information_schema.tables """)
-            for table in cursor.fetchall():
-                print(table)    
-
-            insert_statement = """SELECT * FROM totem.downloadtime"""
-            cursor.execute(insert_statement)
-            for val in cursor.fetchall():
-                print(val) 
-
-            print("Inizio insert")
             insert_statement = """INSERT INTO totem.downloadtime (photoName) VALUES (%s)"""
             cursor.execute(insert_statement, (name,)) #TODO sarà da testare e far funzionare
             connection.commit()
-            print("Fine insert")
-            print("Inizio Update")
             update_statement = "UPDATE totem.photo SET downloaded = true WHERE photoName = %s"
             cursor.execute(update_statement, (name,)) #TODO sarà da testare e far funzionare
             connection.commit()
-            print("Fine Update")
         except Exception as e:
             #TODO
             print("ERRORRE database")
             print(e)
             connection.rollback()
-        cursor.close()
-        connection.close()
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
+
+
+    def is_already_downloaded(self, name):
+        connection = self.__get_connection()
+        cursor = connection.cursor()
+        try:
+            select_statement = "SELECT downloaded FROM totem.photo WHERE photoname=%s"
+            cursor.execute(select_statement, (name,))
+            record = cursor.fetchall()
+            if record.__len__ == 1:
+                return record[0]
+            else:
+                #TODO gestire meglio
+                return False
+        except Exception as e:
+            #TODO
+            print("ERRORRE database")
+            print(e)
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
 
 
     #Unused...
@@ -71,6 +82,10 @@ class DatabaseHandler():
         except:
             #TODO
             print("ERRORRE Insert")
+        finally:
+            if connection:
+                cursor.close()
+                connection.close()
             
         connection.close()
 

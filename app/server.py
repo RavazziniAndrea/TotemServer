@@ -50,16 +50,20 @@ async def get_photo(photo_name):
     name = photo_name
 
     global db_handler
-    db_handler.file_add_get_photo(name)
-    # thread_add_get_photo = Thread(target=db_handler.file_add_get_photo, args=name)
-    # thread_add_get_photo.start()
-    #TODO inviare risposta al client ti togliere il QR dallo schermo (?)
+    
+    #TODO gestire bene il fatto che sia già stata scaricata
+    if not db_handler.is_already_downloaded(name):
+        db_handler.file_add_get_photo(name)
+        # thread_add_get_photo = Thread(target=db_handler.file_add_get_photo, args=name)
+        # thread_add_get_photo.start()
+        #TODO inviare risposta al client ti togliere il QR dallo schermo (?)
 
-    #FIXME gestire errore File non trovato
-    print("[DEBUG]")
-    print(os.getcwd())
-    print(os.listdir("photos"))
-    return FileResponse(path=f"{PHOTO_FOLDER}/{name}{EXTENSION}",filename=f"{PHOTO_FOLDER}/{name}{EXTENSION}",media_type=MEDIA_TYPE)
+        #FIXME gestire errore File non trovato
+        return FileResponse(path=f"{PHOTO_FOLDER}/{name}{EXTENSION}",filename=f"{PHOTO_FOLDER}/{name}{EXTENSION}",media_type=MEDIA_TYPE)
+    else:
+        #TODO gestire meglio
+        print("Foto già scaricata")
+        return None
 
 # ----------------------------------------------------------
 # END - FASTAPI
