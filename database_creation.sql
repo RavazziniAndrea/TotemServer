@@ -5,8 +5,8 @@ CREATE TABLE totem.photo(
 	photoName VARCHAR(255),
 	localPath VARCHAR(255),
 	downloaded BOOLEAN DEFAULT FALSE,
-	digested VARCHAR(255) NOT NULL,
-	recivedTime TIMESTAMP,
+	digest VARCHAR(255) NOT NULL,
+	receivedTime TIMESTAMP,
 	PRIMARY KEY (photoName)
 );
 

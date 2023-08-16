@@ -1,22 +1,16 @@
+import datetime
+import shutil
+import traceback
+
+import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
-import shutil
-import uvicorn
-import datetime 
-import pathlib
-import os
-import traceback
-from threading import Thread
+# from string_converter import StringConverter
+from pydantic import BaseModel
+
+from constants import CONFIG_PATH, PHOTO_FOLDER, EXTENSION, MEDIA_TYPE
 from database_handler import DatabaseHandler
 from read_config import ReadConfig
-# from string_converter import StringConverter
-
-
-CONFIG_PATH  = "./app/config"
-KEY_PATH     = f"{CONFIG_PATH}/key"
-PHOTO_FOLDER = "./photos"
-MEDIA_TYPE   = "image/jpeg"
-EXTENSION    = ".jpg"
 
 try:
     # converter = StringConverter(f"{CONFIG_PATH}/key")
@@ -29,68 +23,68 @@ except Exception as e:
     quit()
 
 
+class Item(BaseModel):
+    res: str
+
+
 # ----------------------------------------------------------
 # FASTAPI
 # ----------------------------------------------------------
 
 app = FastAPI()
 
+
 @app.post("/photo/")
 async def salva_file(img: UploadFile = File(...)):
     try:
-        salva_filesystem(img) #TODO se exception, fai qualcosa, non andare avanti tipo...
-        salva_db(img.name)
+        global db_handler
+        img_name, digest = db_handler.add_new_photo()
+        salva_filesystem(img, img_name)
     except Exception as e:
-        #TODO tornare qualcosa al client
-        print(traceback.print_exc)
+        traceback.print_exc()
+        digest = ""
+
+    return Item(res=digest)
 
 
-@app.get("/get/{photo_name}")
-async def get_photo(photo_name):
-    name = photo_name
-
+@app.get("/get/{photo_digest}")
+async def get_photo(photo_digest):
     global db_handler
-    
-    #TODO gestire bene il fatto che sia già stata scaricata
-    if not db_handler.is_already_downloaded(name):
-        db_handler.file_add_get_photo(name)
-        # thread_add_get_photo = Thread(target=db_handler.file_add_get_photo, args=name)
-        # thread_add_get_photo.start()
-        #TODO inviare risposta al client ti togliere il QR dallo schermo (?)
+    if not db_handler.is_already_downloaded(photo_digest):
+        img_name = db_handler.get_image_path_from_digest(photo_digest)
+        db_handler.file_add_get_photo(img_name, photo_digest)
 
-        #FIXME gestire errore File non trovato
-        return FileResponse(path=f"{PHOTO_FOLDER}/{name}{EXTENSION}",filename=f"{PHOTO_FOLDER}/{name}{EXTENSION}",media_type=MEDIA_TYPE)
+        path = PHOTO_FOLDER / (img_name + EXTENSION)
+        if not path.exists():
+            print(f"Il file non esiste, cazzo fai?")
+            return Item(res="Il file non esiste, cheffai birbantello?")
+
+        return FileResponse(path=path, media_type=MEDIA_TYPE)
     else:
-        #TODO gestire meglio
         print("Foto già scaricata")
-        return None
+        return Item(res="Hai già scaricato la foto, se non sei stato tu fattela mandare o chiedi ai nerd dei BarBoun")
+
+
+@app.get("/check/{photo_digest}")
+async def check_photo_downloaded(photo_digest):
+    global db_handler
+    return Item(res=str(db_handler.is_already_downloaded(photo_digest)))
+
 
 # ----------------------------------------------------------
 # END - FASTAPI
 # ----------------------------------------------------------
 
 
-def salva_filesystem(img):
+def salva_filesystem(img, img_name):
     try:
-        with open(f"{PHOTO_FOLDER}/{get_photo_name()}{EXTENSION}","wb") as buffer:
+        with open(f"{PHOTO_FOLDER}/{img_name}{EXTENSION}", "wb") as buffer:
             shutil.copyfileobj(img.file, buffer)
-        print(f"File written: {img.name}")
+        # print(f"File written: {img.filename}")
     except Exception as e:
-        print("Error writing file!!") #TODO gestisci meglio questa eccezione! (magari tornando qualcosa al client)
-        print(traceback.print_exc())
+        print("Error writing file!!")
+        traceback.print_exc()
         raise Exception("Not written in filesystem")
-
-
-def salva_db(name):
-    # global db_handler
-    # db_handler.add_new_photo(name, PHOTO_FOLDER+name, StringConverter.encrypt(name))
-    db_handler.add_new_photo(name, PHOTO_FOLDER+name, name)
-
-
-def get_photo_name():
-    curr = datetime.datetime.now()
-    #Impossible name duplication(?)
-    return curr.strftime("%Y%m%d_%H-%M-%S")
 
 
 if __name__ == "__main__":
@@ -99,6 +93,5 @@ if __name__ == "__main__":
 
     # global converter
     # global db_handler
-
 
     uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
