@@ -3,7 +3,7 @@ import shutil
 import traceback
 
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, UploadFile, Request
 from fastapi.responses import FileResponse
 # from string_converter import StringConverter
 from pydantic import BaseModel
@@ -35,7 +35,14 @@ app = FastAPI()
 
 
 @app.post("/photo/")
-async def salva_file(img: UploadFile = File(...)):
+async def salva_file(img: UploadFile, request: Request):
+    ips = [x.strip() for x in os.environ.get('BB_WHITELIST_IP', '').split(',')]
+    if ips:
+        print(f"Request coming from: {request.client.host}\n"
+              f"Whitelisted IPs: {ips}\n"
+              f"{request.client.host in ips}")
+    else:
+        print(ips)
     try:
         global db_handler
         img_name, digest = db_handler.add_new_photo()
