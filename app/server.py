@@ -1,4 +1,5 @@
 import datetime
+import os
 import shutil
 import traceback
 
@@ -94,11 +95,12 @@ def salva_filesystem(img, img_name):
         raise Exception("Not written in filesystem")
 
 
-if __name__ == "__main__":
+def main():
     print(" -- Start server --")
     print(f" -- {datetime.datetime.now()} --")
 
-    # global converter
-    # global db_handler
+    uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)  # , proxy_headers=True
 
-    uvicorn.run("server:app", host="0.0.0.0", port=10481, workers=3)
+
+if __name__ == "__main__":
+    main()
